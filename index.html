@@ -5,36 +5,97 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Регистрация</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            max-width: 400px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
 </head>
 <body>
-    <h1>Регистрация</h1>
-    <form id="registrationForm">
-        <label for="full_name">ФИО:</label>
-        <input type="text" id="full_name" name="full_name" required><br><br>
-        <label for="workplace">Место работы:</label>
-        <input type="text" id="workplace" name="workplace" required><br><br>
-        <label for="position">Должность:</label>
-        <input type="text" id="position" name="position" required><br><br>
-        <label for="email">Электронная почта:</label>
-        <input type="email" id="email" name="email" required><br><br>
-        <button type="button" onclick="submitForm()">Зарегистрироваться</button>
-    </form>
 
-    <script>
-        function submitForm() {
-            const formData = {
-                full_name: document.getElementById('full_name').value,
-                workplace: document.getElementById('workplace').value,
-                position: document.getElementById('position').value,
-                email: document.getElementById('email').value,
-            };
+<h1>Регистрация</h1>
+<form id="registrationForm" onsubmit="submitForm(); return false;">
+    <label for="full_name">ФИО:</label>
+    <input type="text" id="full_name" placeholder="Введите ваше ФИО" required>
 
-            // Отправляем данные в бота
-            Telegram.WebApp.sendData(JSON.stringify(formData));
+    <label for="workplace">Место работы:</label>
+    <input type="text" id="workplace" placeholder="Введите место работы" required>
+
+    <label for="position">Должность:</label>
+    <input type="text" id="position" placeholder="Введите вашу должность" required>
+
+    <label for="email">Электронная почта:</label>
+    <input type="email" id="email" placeholder="Введите вашу почту" required>
+
+    <button type="submit">Зарегистрироваться</button>
+</form>
+
+<script>
+    function submitForm() {
+        const formData = {
+            full_name: document.getElementById('full_name').value.trim(),
+            workplace: document.getElementById('workplace').value.trim(),
+            position: document.getElementById('position').value.trim(),
+            email: document.getElementById('email').value.trim(),
+        };
+
+        if (!formData.full_name || !formData.workplace || !formData.position || !formData.email) {
+            alert("Заполните все поля!");
+            return;
         }
-    </script>
+
+        // Отправка данных в Telegram WebApp
+        Telegram.WebApp.sendData(JSON.stringify(formData));
+
+        // Показ сообщения и закрытие WebApp
+        alert("Вы успешно зарегистрированы!");
+        setTimeout(() => Telegram.WebApp.close(), 1000); // Закрытие через 1 сек
+    }
+</script>
+
 </body>
 </html>
+
 
 
 
