@@ -1,100 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Регистрация</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f9f9f9;
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-        form {
-            max-width: 400px;
-            margin: 0 auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        label {
-            display: block;
-            margin-top: 10px;
-            font-weight: bold;
-        }
-        input {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #218838;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <title>Registration Form</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    input, button { width: 100%; padding: 10px; margin: 10px 0; }
+  </style>
 </head>
 <body>
+  <h2>Регистрация</h2>
+  <form id="registration-form">
+    <input type="text" id="full_name" placeholder="ФИО" required>
+    <input type="text" id="workplace" placeholder="Место работы" required>
+    <input type="text" id="position" placeholder="Должность" required>
+    <input type="email" id="email" placeholder="Электронная почта" required>
+    <button type="button" onclick="sendData()">Зарегистрироваться</button>
+  </form>
 
-<h1>Регистрация</h1>
-<form id="registrationForm" onsubmit="submitForm(); return false;">
-    <label for="full_name">ФИО:</label>
-    <input type="text" id="full_name" placeholder="Введите ваше ФИО" required>
+  <script>
+    const tg = window.Telegram.WebApp;
 
-    <label for="workplace">Место работы:</label>
-    <input type="text" id="workplace" placeholder="Введите место работы" required>
+    function sendData() {
+      const fullName = document.getElementById('full_name').value.trim();
+      const workplace = document.getElementById('workplace').value.trim();
+      const position = document.getElementById('position').value.trim();
+      const email = document.getElementById('email').value.trim();
 
-    <label for="position">Должность:</label>
-    <input type="text" id="position" placeholder="Введите вашу должность" required>
+      if (!fullName || !workplace || !position || !email) {
+        alert('Все поля обязательны для заполнения.');
+        return;
+      }
 
-    <label for="email">Электронная почта:</label>
-    <input type="email" id="email" placeholder="Введите вашу почту" required>
+      if (!email.includes('@') || !email.includes('.')) {
+        alert('Введите корректный email.');
+        return;
+      }
 
-    <button type="submit">Зарегистрироваться</button>
-</form>
-
-<script>
-    function submitForm() {
-        const formData = {
-            full_name: document.getElementById('full_name').value.trim(),
-            workplace: document.getElementById('workplace').value.trim(),
-            position: document.getElementById('position').value.trim(),
-            email: document.getElementById('email').value.trim(),
-        };
-
-        if (!formData.full_name || !formData.workplace || !formData.position || !formData.email) {
-            alert("Заполните все поля!");
-            return;
-        }
-
-        // Отправка данных в Telegram WebApp
-        Telegram.WebApp.sendData(JSON.stringify(formData));
-
-        // Показ сообщения и закрытие WebApp
-        alert("Вы успешно зарегистрированы!");
-        setTimeout(() => Telegram.WebApp.close(), 1000); // Закрытие через 1 сек
+      const data = { full_name: fullName, workplace: workplace, position: position, email: email };
+      tg.sendData(JSON.stringify(data)); // Отправка данных в бота
+      alert('Данные отправлены! Вы успешно зарегистрированы.');
+      tg.close(); // Закрытие Web App
     }
-</script>
-
+  </script>
 </body>
 </html>
+
 
 
 
