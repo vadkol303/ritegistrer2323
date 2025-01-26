@@ -1,54 +1,49 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <title>Registration Form</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    input, button { width: 100%; padding: 10px; margin: 10px 0; }
-  </style>
+    <title>QR Scanner</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+        }
+        #reader {
+            width: 100%;
+            max-width: 600px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+    </style>
 </head>
 <body>
-  <h2>Регистрация</h2>
-  <form id="registration-form">
-    <input type="text" id="full_name" placeholder="ФИО" required>
-    <input type="text" id="workplace" placeholder="Место работы" required>
-    <input type="text" id="position" placeholder="Должность" required>
-    <input type="email" id="email" placeholder="Электронная почта" required>
-    <button type="button" onclick="sendData()">Зарегистрироваться</button>
-  </form>
+    <div id="reader"></div>
+    <script>
+        function onScanSuccess(decodedText, decodedResult) {
+            const userId = decodedText.split('user_id:')[1];
+            if (userId) {
+                window.Telegram.WebApp.sendData(JSON.stringify({
+                    user_id: userId
+                }));
+                window.Telegram.WebApp.close();
+            }
+        }
 
-  <script src="https://telegram.org/js/telegram-web-app.js">
-    const tg = window.Telegram.WebApp;
-
-    function sendData() {
-      const fullName = document.getElementById('full_name').value.trim();
-      const workplace = document.getElementById('workplace').value.trim();
-      const position = document.getElementById('position').value.trim();
-      const email = document.getElementById('email').value.trim();
-
-      if (!fullName || !workplace || !position || !email) {
-        alert('Все поля обязательны для заполнения.');
-        return;
-      }
-
-      if (!email.includes('@') || !email.includes('.')) {
-        alert('Введите корректный email.');
-        return;
-      }
-
-      const data = { full_name: fullName, workplace: workplace, position: position, email: email };
-      tg.sendData(JSON.stringify(data)); // Отправка данных в бота
-      alert('Данные отправлены! Вы успешно зарегистрированы.');
-      tg.close(); // Закрытие Web App
-    }
-  </script>
+        let html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader", 
+            { 
+                fps: 10, 
+                qrbox: {width: 250, height: 250},
+                aspectRatio: 1.0
+            }
+        );
+        html5QrcodeScanner.render(onScanSuccess);
+    </script>
 </body>
-</html>
-
-
-
-
-
+</html> 
