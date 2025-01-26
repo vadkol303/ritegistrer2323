@@ -26,12 +26,20 @@
     <div id="reader"></div>
     <script>
         function onScanSuccess(decodedText, decodedResult) {
+            console.log("QR Code scanned successfully!");
+            console.log("Decoded text:", decodedText);
+            console.log("Decoded result:", decodedResult);
+
             const userId = decodedText.split('user_id:')[1];
             if (userId) {
+                console.log("Extracted user_id:", userId);
                 window.Telegram.WebApp.sendData(JSON.stringify({
                     user_id: userId
                 }));
+                console.log("Data sent to Telegram WebApp:", { user_id: userId });
                 window.Telegram.WebApp.close();
+            } else {
+                console.error("Failed to extract user_id from decoded text.");
             }
         }
 
