@@ -96,14 +96,12 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        function onScanSuccess(decodedText, decodedResult) {
-            document.getElementById('status').innerText = `QR-код успешно отсканирован!`;
-            if (html5QrcodeScanner) {
-                html5QrcodeScanner.clear();
-            }
-            
-            // Отправляем данные в бота
-            tg.sendData(decodedText);
+        function onScanSuccess(decodedText) {
+            const data = {
+                type: 'qr_scan',
+                token: decodedText
+            };
+            tg.sendData(JSON.stringify(data));
             tg.close();
         }
 
