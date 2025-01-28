@@ -3,7 +3,7 @@
 <head>
     <title>QR Scanner</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
@@ -13,74 +13,62 @@
             background: var(--tg-theme-bg-color, #ffffff);
             color: var(--tg-theme-text-color, #000000);
         }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            text-align: center;
-        }
-
-        #reader {
+        #video {
             width: 100%;
             max-width: 600px;
-            margin: 20px auto;
             border-radius: 10px;
-            overflow: hidden;
         }
-
-        .status {
-            margin: 20px 0;
-            padding: 15px;
-            border-radius: 8px;
-            background: var(--tg-theme-secondary-bg-color, #f5f5f5);
-            font-size: 16px;
+        canvas {
+            display: none;
+        }
+        .container {
+            text-align: center;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div id="reader"></div>
-        <div id="status" class="status">Инициализация камеры...</div>
+        <video id="video"></video>
+        <canvas id="canvas"></canvas>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        function onScanSuccess(decodedText) {
-            const data = {
-                type: 'qr_scan',
-                token: decodedText
-            };
-            tg.sendData(JSON.stringify(data));
-            tg.close();
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+
+        // Запрашиваем доступ к задней камере
+        navigator.mediaDevices.getUserMedia({ 
+            video: { facingMode: "environment" } 
+        }).then(function(stream) {
+            video.srcObject = stream;
+            video.play();
+            requestAnimationFrame(tick);
+        });
+
+        function tick() {
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height);
+                
+                if (code) {
+                    const data = {
+                        type: 'qr_scan',
+                        token: code.data
+                    };
+                    tg.sendData(JSON.stringify(data));
+                    tg.close();
+                    return;
+                }
+            }
+            requestAnimationFrame(tick);
         }
-
-        function onScanFailure(error) {
-            // Игнорируем ошибки сканирования
-        }
-
-        window.onload = function() {
-            const html5QrCode = new Html5Qrcode("reader");
-            const config = {
-                fps: 10,
-                qrbox: { width: 250, height: 250 },
-                aspectRatio: 1.0,
-                formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ]
-            };
-
-            // Сразу запускаем сканирование с камерой по умолчанию
-            html5QrCode.start(
-                { facingMode: "environment" }, // Используем заднюю камеру
-                config,
-                onScanSuccess,
-                onScanFailure
-            ).then(() => {
-                document.getElementById('status').innerText = 'Наведите камеру на QR-код';
-            }).catch(err => {
-                document.getElementById('status').innerText = 'Ошибка инициализации камеры';
-            });
-        };
     </script>
 </body>
 </html>
